@@ -59,6 +59,8 @@ document.getElementById("btn-send").onclick = () => {
                         send(data);
                     }
                 });
+            } else {
+                alert("Clipboard permissions are missing.");
             }
         });
     };
