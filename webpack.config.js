@@ -1,3 +1,4 @@
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const webpack = require("webpack");
 
@@ -20,14 +21,15 @@ module.exports = env => {
                 },
                 {
                     test: /\.css$/i,
-                    use: ["style-loader", "css-loader"],
+                    use: [MiniCssExtractPlugin.loader, "css-loader"],
                 },
             ]
         },
         plugins: [
             new webpack.DefinePlugin({
                 "ENVIRONMENT": JSON.stringify(env),
-            })
+            }),
+            new MiniCssExtractPlugin()
         ]
     };
 };

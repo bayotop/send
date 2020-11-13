@@ -8,6 +8,7 @@ const port = process.env.NODE_PORT || "3000";
 
 const clients = {};
 const UUID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$/;
+const SUPPORTED_CONTENT_TYPES = ["text/html", "text/css", "application/javascript"];
 
 const wss = new WebSocket.Server({ noServer: true });
 wss.on("connection", (ws, request) => {
@@ -61,7 +62,7 @@ const respond = (response, status_code, content) => {
     setSecurityHeaders(response);
 
     response.status_code = status_code;
-    if (content.type == "text/html" || content.type == "application/javascript") {
+    if (SUPPORTED_CONTENT_TYPES.includes(content.type)) {
         response.setHeader("Content-Type", content.type);
         fs.readFile(path.resolve(__dirname, content.source), (_, contents) => {
             response.write(contents);
@@ -95,6 +96,11 @@ const server = http.createServer((request, response) => {
 
     if (request.url == "/dist/qr-scanner-worker.min.js") {
         respond(response, 200, {type: "application/javascript", source: "../../dist/qr-scanner-worker.min.js"});
+        return;
+    }
+
+    if (request.url == "/dist/main.css") {
+        respond(response, 200, {type: "text/css", source: "../../dist/main.css"});
         return;
     }
 
@@ -135,7 +141,7 @@ const setSecurityHeaders = (response) => {
 
     const websocketHost = (process.env.NODE_ENV === "production") ? `wss://${domain}` : `ws://localhost:${port}`;
 
-    response.setHeader("Content-Security-Policy", `default-src 'none'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; style-src 'unsafe-inline'; base-uri 'none'; upgrade-insecure-requests; frame-ancestors 'none';`);
+    response.setHeader("Content-Security-Policy", `default-src 'none'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; style-src 'self'; base-uri 'none'; upgrade-insecure-requests; frame-ancestors 'none';`);
     response.setHeader("X-Content-Type-Options", "nosniff");
     response.setHeader("Referrer-Policy", "no-referrer");
     response.setHeader("X-Frame-Options", "DENY");
