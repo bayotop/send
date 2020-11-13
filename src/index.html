@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+      <title>send - secure data sharing via websockets</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, height=device-height">
+      <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+  </head>
+  <body>
+  <div class="container" id="content">
+    <div id="action-pick">
+      <div><button class="button" id="btn-send">Send</button></div>
+      <div><button class="button" id="btn-receive">Receive</button></div>
+    </div>
+    <div id="action-send" class="hidden">
+      <textarea id="area-data" class="textarea" placeholder="Enter text to send..."></textarea>
+      <div><button class="button" id="btn-send-data">Send text</button></div>
+      <div><button class="button" id="btn-clipboard">Send clipboard</button></div>
+    </div>
+    <div id="action-qrcode" class="hidden"></div> 
+    <div id="action-scan" class="hidden">
+      <video autoplay></video>
+    </div>
+    <div id="action-received" class="hidden">
+      <pre id="result" class="result"></pre>
+    </div>
+  </div>
+    <script src="/dist/bundle.js"></script>
+  </body>
+</html>

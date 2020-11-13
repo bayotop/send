@@ -1,0 +1,36 @@
+{
+  "name": "send",
+  "version": "1.0.0",
+  "description": "send - secure data sharing via websockets",
+  "scripts": {
+    "build-prod": "webpack --env production",
+    "build-dev": "webpack --env development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bayotop/send.git"
+  },
+  "author": "bayo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bayotop/send/issues"
+  },
+  "homepage": "https://github.com/bayotop/send#readme",
+  "dependencies": {
+    "tweetnacl-util": "^0.15.1",
+    "ws": "^7.4.0"
+  },
+  "devDependencies": {
+    "css-loader": "^5.0.1",
+    "eslint": "^7.13.0",
+    "file-loader": "^6.2.0",
+    "qr-scanner": "^1.2.0",
+    "qrcode": "^1.4.4",
+    "style-loader": "^2.0.0",
+    "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.2.1"
+  }
+}
