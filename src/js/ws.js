@@ -4,7 +4,7 @@ nacl.util = require("tweetnacl-util");
 // eslint-disable-next-line no-undef
 const protocol = (ENVIRONMENT === "development") ? "ws://" : "wss://";
 
-export const send = (message) => {
+export const send = (message, callback) => {
     var socket = new WebSocket(`${protocol}${location.host}/send/${message.uuid}`);
     socket.onopen = () => {
         let data = {
@@ -13,6 +13,8 @@ export const send = (message) => {
 
         socket.send(JSON.stringify(data));
         socket.close();
+
+        callback();
     };
 };
 

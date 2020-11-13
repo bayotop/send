@@ -12,8 +12,9 @@ const send = (data) => {
         let uuid = url.pathname.split("/").pop();
         let [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
 
-        ws.send({"uuid": uuid, "key": key, "nonce": nonce, "data": data});
-        location.href="/";
+        ws.send({"uuid": uuid, "key": key, "nonce": nonce, "data": data}, () => {
+            location.href="/";
+        });
     };
 
     if (location.pathname.startsWith("/_/")) {
