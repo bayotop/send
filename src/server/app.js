@@ -140,8 +140,9 @@ const setSecurityHeaders = (response) => {
     }
 
     const websocketHost = (process.env.NODE_ENV === "production") ? `wss://${domain}` : `ws://localhost:${port}`;
+    const upgradeToHttps = (process.env.NODE_ENV === "production") ? " upgrade-insecure-requests;" : "";
 
-    response.setHeader("Content-Security-Policy", `default-src 'none'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; style-src 'self'; base-uri 'none'; upgrade-insecure-requests; frame-ancestors 'none';`);
+    response.setHeader("Content-Security-Policy", `default-src 'self'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; base-uri 'none';${upgradeToHttps} frame-ancestors 'none';`);
     response.setHeader("X-Content-Type-Options", "nosniff");
     response.setHeader("Referrer-Policy", "no-referrer");
     response.setHeader("X-Frame-Options", "DENY");

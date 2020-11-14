@@ -21,8 +21,11 @@ export const scan = (video, callback) => {
                     (function _scanQR() {
                         QRScanner.scanImage(video, null, engine).then(url => {
                             callback(new URL(url));
+                            
+                            for (let track of video.srcObject.getTracks()) {
+                                track.stop();
+                            }
 
-                            video.srcObject.getTracks().forEach(function(track) { track.stop(); });
                             video.remove();
                         }).catch((error) => {
                             if (error == "No QR code found") {

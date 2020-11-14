@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/bayotop/send#readme",
   "dependencies": {
-    "tweetnacl-util": "^0.15.1",
     "ws": "^7.4.0"
   },
   "devDependencies": {
@@ -29,6 +28,7 @@
     "qr-scanner": "^1.2.0",
     "qrcode": "^1.4.4",
     "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
     "uuid": "^8.3.1",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.2.1"
