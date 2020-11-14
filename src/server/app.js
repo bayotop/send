@@ -3,8 +3,17 @@ const http = require("http");
 const path = require("path");
 const WebSocket = require("ws");
 
-const domain = process.env.SEND_APP_DOMAIN || "localhost";
-const port = process.env.NODE_PORT || "3000";
+const isProduction = process.env.NODE_ENV !== "development";
+console.log(
+    `Initialising ${isProduction ? "production" : "development"} configuration (process.env.NODE_ENV is ${process.env.NODE_ENV})`
+);
+
+const domain = isProduction ? process.env.SEND_APP_DOMAIN : "localhost";
+const port = isProduction ? process.env.NODE_PORT : "3000";
+
+if (!(domain && port)) {
+    throw Error("the process.env.SEND_APP_DOMAIN and process.env.NODE_PORT environment variables need to be set");
+}
 
 const clients = {};
 const UUID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$/;
@@ -118,7 +127,7 @@ const server = http.createServer((request, response) => {
 
     respond(response, 404, {type: "text/plain", source: "The requested resource doesn't exist."});
 
-}).listen(port, "localhost", () => {
+}).listen(port, "localhost", () => { // always run on localhost (production is expected to be behind a reverse proxy)
     console.log("Server running at http://localhost:" + port + "/");
 });
 
@@ -129,18 +138,18 @@ server.on("upgrade", (request, socket, head) => {
 });
 
 const debug = (message) => {
-    if (process.env.NODE_ENV !== "production") {
+    if (!isProduction) {
         console.log(message);
     }
 };
 
 const setSecurityHeaders = (response) => {
-    if (process.env.NODE_ENV === "production") {
+    if (domain !== "localhost") {
         response.setHeader("Strict-Transport-Security", "max-age=63072000");
     }
 
-    const websocketHost = (process.env.NODE_ENV === "production") ? `wss://${domain}` : `ws://localhost:${port}`;
-    const upgradeToHttps = (process.env.NODE_ENV === "production") ? " upgrade-insecure-requests;" : "";
+    const websocketHost = (domain === "localhost") ? `ws://${domain}:${port}` : `wss://${domain}`;
+    const upgradeToHttps = (domain === "localhost") ?  "" : " upgrade-insecure-requests;";
 
     response.setHeader("Content-Security-Policy", `default-src 'self'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; base-uri 'none';${upgradeToHttps} frame-ancestors 'none';`);
     response.setHeader("X-Content-Type-Options", "nosniff");

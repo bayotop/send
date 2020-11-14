@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "send - secure data sharing via websockets",
   "scripts": {
+    "run-dev": "export NODE_ENV=development && node src/server/app.js",
     "build-prod": "webpack --env production",
     "build-dev": "eslint . && webpack --env development",
     "test": "echo \"Error: no test specified\" && exit 1"
