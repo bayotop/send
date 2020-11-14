@@ -17,16 +17,11 @@ export const scan = (video, callback) => {
 
             video.addEventListener("play", function() {
                 QRScanner.createQrEngine(QRScanner.WORKER_PATH).then(engine => {
-                    var count = 0;
+                    let count = 0;
                     (function _scanQR() {
                         QRScanner.scanImage(video, null, engine).then(url => {
                             callback(new URL(url));
-                            
-                            for (let track of video.srcObject.getTracks()) {
-                                track.stop();
-                            }
-
-                            video.remove();
+                            destroy(video);
                         }).catch((error) => {
                             if (error == "No QR code found") {
                                 count += 1;
@@ -34,8 +29,7 @@ export const scan = (video, callback) => {
                                     setTimeout(_scanQR, 1000 / scansPerSecond);
                                 }
                                 else {
-                                    video.srcObject.getTracks().forEach(function(track) { track.stop(); });
-                                    video.remove();
+                                    destroy(video);
                                 }
                             } else {
                                 console.error(`Scan error: ${error}`);
@@ -57,4 +51,12 @@ export const generate = (data, callback) => {
         }
         callback(canvas);
     });
+};
+
+const destroy = (video) => {
+    for (let track of video.srcObject.getTracks()) {
+        track.stop();
+    }
+
+    video.remove();
 };

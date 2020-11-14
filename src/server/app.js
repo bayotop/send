@@ -47,7 +47,7 @@ wss.on("connection", (ws, request) => {
         debug(`info: received send from ${uuid}`);
         ws.on("message", message => {
             if (uuid in clients) {
-                var client = clients[uuid];
+                const client = clients[uuid];
                 if (client.readyState === WebSocket.OPEN) {
                     debug(`info: forwarding message to ${uuid}`);
                     client.send(message);
@@ -81,7 +81,7 @@ const respond = (response, status_code, content) => {
         return;
     }
 
-    if (content.type == "text/plain") {
+    if (content.type === "text/plain") {
         response.setHeader("Content-Type", content.type);
         response.write(content.source);
         response.end();

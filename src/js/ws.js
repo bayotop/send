@@ -5,10 +5,12 @@ nacl.util = require("tweetnacl-util");
 const protocol = (ENVIRONMENT === "development") ? "ws://" : "wss://";
 
 export const send = (message, callback) => {
-    var socket = new WebSocket(`${protocol}${location.host}/send/${message.uuid}`);
+    const socket = new WebSocket(`${protocol}${location.host}/send/${message.uuid}`);
     socket.onopen = () => {
-        let data = {
-            message: nacl.util.encodeBase64(nacl.secretbox(nacl.util.decodeUTF8(message.data), message.nonce, message.key))
+        const data = {
+            message: nacl.util.encodeBase64(
+                nacl.secretbox(nacl.util.decodeUTF8(message.data), message.nonce, message.key)
+            )
         };
 
         socket.send(JSON.stringify(data));
@@ -19,10 +21,12 @@ export const send = (message, callback) => {
 };
 
 export const listen = (options, callback) => {
-    var socket = new WebSocket(`${protocol}${location.host}/listen/${options.uuid}`);
+    const socket = new WebSocket(`${protocol}${location.host}/listen/${options.uuid}`);
     socket.onmessage = (event) => {
+        const message = JSON.parse(event.data).message;
         callback(
-            nacl.util.encodeUTF8(nacl.secretbox.open(nacl.util.decodeBase64(JSON.parse(event.data).message), options.nonce, options.key))
+            nacl.util.encodeUTF8(
+                nacl.secretbox.open(nacl.util.decodeBase64(message), options.nonce, options.key))
         );
         socket.close();
     };

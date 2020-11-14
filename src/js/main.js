@@ -9,8 +9,8 @@ const { v4: uuidv4 } = require("uuid");
 
 const send = (data) => {
     const _send = (url) => {
-        let uuid = url.pathname.split("/").pop();
-        let [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
+        const uuid = url.pathname.split("/").pop();
+        const [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
 
         ws.send({"uuid": uuid, "key": key, "nonce": nonce, "data": data}, () => {
             location.href="/";
