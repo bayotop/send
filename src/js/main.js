@@ -50,17 +50,11 @@ document.getElementById("btn-send").onclick = () => {
     };
 
     document.getElementById("btn-clipboard").onclick = () => {
-        navigator.permissions.query({name: "clipboard-read"}).then(result => {          
-            if (result.state == "granted" || result.state == "prompt") {
-                navigator.clipboard.readText().then(data => {
-                    if (!(data && /\S/.test(data))) {
-                        alert("It seems there is either no or unsupported data in your clipboard.");
-                    } else {
-                        send(data);
-                    }
-                });
+        navigator.clipboard.readText().then(data => {
+            if (!(data && /\S/.test(data))) {
+                alert("It seems there is either no or unsupported data in your clipboard.");
             } else {
-                alert("Clipboard permissions are missing.");
+                send(data);
             }
         });
     };
