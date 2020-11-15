@@ -7,26 +7,26 @@ nacl.util = require("tweetnacl-util");
 
 const { v4: uuidv4 } = require("uuid");
 
-const send = (data) => {
-    const _send = (url) => {
-        const uuid = url.pathname.split("/").pop();
-        const [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
+var settings = null;
 
-        ws.send({"uuid": uuid, "key": key, "nonce": nonce, "data": data}, () => {
-            location.href="/";
-        });
+const send = (message) => {
+    const _redirect = () => {
+        window.settings = settings = {};
+        location.href="/";
     };
 
-    if (location.pathname.startsWith("/_/")) {
-        _send(location);
+    if (settings) {
+        ws.send(message, settings, _redirect);
     } else {
         rewriteDOM("action-scan");
-        qr.scan(document.querySelector("video"), _send);
+        qr.scan(document.querySelector("video"), (url) => {
+            ws.send(message, getSettingsFromUrl(url), _redirect);
+        });
     }
 };
 
-const listen = (options) => {
-    ws.listen(options, (data) => {
+const listen = (settings) => {
+    ws.listen(settings, (data) => {
         document.getElementById("result").textContent = data;
         rewriteDOM("action-received");
     });
@@ -37,31 +37,38 @@ const rewriteDOM = (identifier) => {
     document.getElementById(identifier).classList.remove("hidden");
 };
 
+const getSettingsFromUrl = (url) => {
+    const uuid = url.pathname.split("/").pop();
+    const [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
+
+    return {"uuid": uuid, "key": key, "nonce": nonce};
+};
+
 document.getElementById("btn-send").onclick = () => {
     rewriteDOM("action-send");
+};
 
-    document.getElementById("btn-send-data").onclick = () => {
-        const data = document.getElementById("area-data").value;
-        if (!(data && /\S/.test(data))) {
-            alert("You need to first enter some text to be sent.");
+document.getElementById("btn-send-message").onclick = () => {
+    const message = document.getElementById("area-message").value;
+    if (!(message && /\S/.test(message))) {
+        alert("You need to first enter some text to be sent.");
+    } else {
+        send(message);
+    }  
+};
+
+document.getElementById("btn-clipboard").onclick = () => {
+    navigator.clipboard.readText().then(message => {
+        if (!(message && /\S/.test(message))) {
+            alert("It seems there is either no or unsupported data in your clipboard.");
         } else {
-            send(data);
-        }  
-    };
-
-    document.getElementById("btn-clipboard").onclick = () => {
-        navigator.clipboard.readText().then(data => {
-            if (!(data && /\S/.test(data))) {
-                alert("It seems there is either no or unsupported data in your clipboard.");
-            } else {
-                send(data);
-            }
-        });
-    };
+            send(message);
+        }
+    });
 };
 
 document.getElementById("btn-receive").onclick = () => {
-    const options = {
+    const settings = {
         uuid: uuidv4(),
         key: nacl.randomBytes(nacl.secretbox.keyLength),
         nonce: nacl.randomBytes(nacl.secretbox.nonceLength)
@@ -69,19 +76,23 @@ document.getElementById("btn-receive").onclick = () => {
 
     // eslint-disable-next-line no-undef
     if (ENVIRONMENT === "development") {
-        console.log(`${location.origin}/_/${options.uuid}#${nacl.util.encodeBase64(options.key)},${nacl.util.encodeBase64(options.nonce)}`);
+        console.log(`${location.origin}/_/${settings.uuid}#${nacl.util.encodeBase64(settings.key)},${nacl.util.encodeBase64(settings.nonce)}`);
     }
 
-    qr.generate(`${location.origin}/_/${options.uuid}#${nacl.util.encodeBase64(options.key)},${nacl.util.encodeBase64(options.nonce)}`, (canvas) => {
+    qr.generate(`${location.origin}/_/${settings.uuid}#${nacl.util.encodeBase64(settings.key)},${nacl.util.encodeBase64(settings.nonce)}`, (canvas) => {
         document.getElementById("action-qrcode").appendChild(canvas);
         rewriteDOM("action-qrcode");
     });
 
-    listen(options);
+    listen(settings);
 };
 
 if (/^\/_\/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}(\/)?$/.test(location.pathname)) {
-    document.getElementById("btn-send").click();
+    settings = getSettingsFromUrl(location);
+    // Settings might still be stored in history (unless incognito), unfortunately there probably isn't a way around this.
+    history.replaceState(null, null, " ");
+
+    rewriteDOM("action-send");
 } else if (location.pathname !== "/") {
     location.href = "/";
 }

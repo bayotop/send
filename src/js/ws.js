@@ -4,27 +4,24 @@ nacl.util = require("tweetnacl-util");
 // eslint-disable-next-line no-undef
 const protocol = (ENVIRONMENT === "development") ? "ws://" : "wss://";
 
-export const send = (message, callback) => {
-    const socket = new WebSocket(`${protocol}${location.host}/send/${message.uuid}`);
+export const send = (message, settings, callback) => {
+    const socket = new WebSocket(`${protocol}${location.host}/send/${settings.uuid}`);
     socket.onopen = () => {
-        const data = {
-            message: nacl.util.encodeBase64(
-                nacl.secretbox(nacl.util.decodeUTF8(message.data), message.nonce, message.key)
-            )
-        };
+        const encrypted = nacl.util.encodeBase64(
+            nacl.secretbox(nacl.util.decodeUTF8(message), settings.nonce, settings.key)
+        );
 
-        socket.send(JSON.stringify(data));
+        socket.send(encrypted);
         callback();
     };
 };
 
-export const listen = (options, callback) => {
-    const socket = new WebSocket(`${protocol}${location.host}/listen/${options.uuid}`);
+export const listen = (settings, callback) => {
+    const socket = new WebSocket(`${protocol}${location.host}/listen/${settings.uuid}`);
     socket.onmessage = (event) => {
-        const message = JSON.parse(event.data).message;
         callback(
             nacl.util.encodeUTF8(
-                nacl.secretbox.open(nacl.util.decodeBase64(message), options.nonce, options.key))
+                nacl.secretbox.open(nacl.util.decodeBase64(event.data), settings.nonce, settings.key))
         );
     };
 };
