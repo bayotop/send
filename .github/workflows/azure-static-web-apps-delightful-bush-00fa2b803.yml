@@ -27,7 +27,7 @@ jobs:
           action: "upload"
           app_location: "/client"
           output_location: "dist"
-          routes_location: "/client/routes.json"
+          routes_location: "/client"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
