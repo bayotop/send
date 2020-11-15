@@ -1,11 +1,10 @@
 {
-  "name": "send",
+  "name": "send-client",
   "version": "1.0.0",
   "description": "send - secure data sharing via websockets",
   "scripts": {
-    "run-dev": "export NODE_ENV=development && node src/server/app.js",
-    "build-prod": "webpack --env production",
-    "build-dev": "eslint . && webpack --env development",
+    "build-prod": "export NODE_ENV=production && export WS_HOST=wss://ws.bayo.io && webpack",
+    "build-dev": "eslint . && export NODE_ENV=development && webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,11 +18,7 @@
   },
   "homepage": "https://github.com/bayotop/send#readme",
   "dependencies": {
-    "ws": "^7.4.0"
-  },
-  "devDependencies": {
     "css-loader": "^5.0.1",
-    "eslint": "^7.13.0",
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^1.3.1",
     "qr-scanner": "^1.2.0",
@@ -33,5 +28,8 @@
     "uuid": "^8.3.1",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.13.0"
   }
 }

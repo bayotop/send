@@ -2,7 +2,7 @@ const QRCode = require("qrcode");
 const QRScanner = require("qr-scanner").default;
 
 import QrScannerWorkerPath from "../../node_modules/qr-scanner/qr-scanner-worker.min.js";
-QRScanner.WORKER_PATH = `dist/${QrScannerWorkerPath}`;
+QRScanner.WORKER_PATH = `/${QrScannerWorkerPath}`;
 
 export const scan = (video, callback) => {
     const scansPerSecond = 4;
