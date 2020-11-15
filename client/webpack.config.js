@@ -20,14 +20,6 @@ module.exports = () => {
                     },
                 },
                 {
-                    test: /routes\.json$/i,
-                    loader: "file-loader",
-                    type: "javascript/auto",
-                    options: {
-                        name: "[name].[ext]",
-                    }
-                },
-                {
                     test: /\.css$/i,
                     use: [MiniCssExtractPlugin.loader, "css-loader"],
                 },

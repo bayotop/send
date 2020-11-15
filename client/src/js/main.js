@@ -1,6 +1,5 @@
 import "../css/main.css";
 import "../index.html";
-import "../../routes.json";
 
 import * as qr from "./qr";
 import * as ws from "./ws";
