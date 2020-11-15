@@ -13,11 +13,19 @@ module.exports = () => {
         module: {
             rules: [
                 {
-                    test: /(qr-scanner-worker.min.js|index.html)$/i,
+                    test: /(qr-scanner-worker\.min\.js|index\.html)$/i,
                     loader: "file-loader",
                     options: {
                         name: "[name].[ext]",
                     },
+                },
+                {
+                    test: /routes\.json$/i,
+                    loader: "file-loader",
+                    type: "javascript/auto",
+                    options: {
+                        name: "[name].[ext]",
+                    }
                 },
                 {
                     test: /\.css$/i,
