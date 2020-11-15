@@ -14,8 +14,6 @@ export const send = (message, callback) => {
         };
 
         socket.send(JSON.stringify(data));
-        socket.close();
-
         callback();
     };
 };
@@ -28,6 +26,5 @@ export const listen = (options, callback) => {
             nacl.util.encodeUTF8(
                 nacl.secretbox.open(nacl.util.decodeBase64(message), options.nonce, options.key))
         );
-        socket.close();
     };
 };

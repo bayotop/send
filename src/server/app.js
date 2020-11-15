@@ -3,74 +3,79 @@ const http = require("http");
 const path = require("path");
 const WebSocket = require("ws");
 
-const isProduction = process.env.NODE_ENV !== "development";
+const IS_PRODUCTION = process.env.NODE_ENV !== "development";
 console.log(
-    `Initialising ${isProduction ? "production" : "development"} configuration (process.env.NODE_ENV is ${process.env.NODE_ENV})`
+    `Initialising ${IS_PRODUCTION ? "production" : "development"} configuration (process.env.NODE_ENV is ${process.env.NODE_ENV})`
 );
 
-const domain = isProduction ? process.env.SEND_APP_DOMAIN : "localhost";
-const port = isProduction ? process.env.NODE_PORT : "3000";
+const DOMAIN = IS_PRODUCTION ? process.env.SEND_APP_DOMAIN : "localhost";
+const PORT = IS_PRODUCTION ? process.env.NODE_PORT : "3000";
 
-if (!(domain && port)) {
+if (!(DOMAIN && PORT)) {
     throw Error("the process.env.SEND_APP_DOMAIN and process.env.NODE_PORT environment variables need to be set");
 }
 
-const clients = {};
 const UUID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$/;
 const SUPPORTED_CONTENT_TYPES = ["text/html", "text/css", "application/javascript"];
 
+const listeners = {};
+
 const wss = new WebSocket.Server({ noServer: true });
 wss.on("connection", (ws, request) => {
-    const uuid = request.url.split("/").pop();
+    const [action, uuid] = request.url.substring(1).split("/");
 
     if (!UUID_PATTERN.test(uuid)) {
-        ws.terminate();
+        ws.close();
         return;
     }
 
-    if (request.url.startsWith("/listen/")) {
+    switch (action) {
+    case "listen":
         debug(`info: received listen from ${uuid}`);
-        if (uuid in clients) {
-            ws.terminate();
+        if (uuid in listeners) {
+            ws.close();
         }
         else {
-            clients[uuid] = ws;
+            listeners[uuid] = ws;
             ws.on("close", () => {
-                delete clients[uuid];
+                debug(`info: closing ${uuid}`);
+                delete listeners[uuid];
             });
         }
-
-        return;
-    }
-
-    if (request.url.startsWith("/send/")) {
-        debug(`info: received send from ${uuid}`);
+        break;
+    case "send":
+        debug(`info: received send to ${uuid}`);
         ws.on("message", message => {
-            if (uuid in clients) {
-                const client = clients[uuid];
-                if (client.readyState === WebSocket.OPEN) {
+            if (uuid in listeners) {
+                const listener = listeners[uuid];
+                if (listener.readyState === WebSocket.OPEN) {
                     debug(`info: forwarding message to ${uuid}`);
-                    client.send(message);
+                    listener.send(message);
                 }
-                client.terminate();
+                listener.close();
             }
             else {
                 console.log(`error: listener for ${uuid} is not available.`);
             }
-            ws.terminate();
+            ws.close();
         });
-
-        return;
+        break;
+    default:
+        console.log(`info: unexpected connection via ${request.url}`);
+        ws.close();
     }
-
-    console.log(`info: unexpected connection via ${request.url}`);
-    ws.terminate();
 });
 
 const respond = (response, status_code, content) => {
     setSecurityHeaders(response);
 
-    response.status_code = status_code;
+    response.statusCode = status_code;
+
+    if (!content) {
+        response.end();
+        return;
+    }
+
     if (SUPPORTED_CONTENT_TYPES.includes(content.type)) {
         response.setHeader("Content-Type", content.type);
         fs.readFile(path.resolve(__dirname, content.source), (_, contents) => {
@@ -81,54 +86,55 @@ const respond = (response, status_code, content) => {
         return;
     }
 
-    if (content.type === "text/plain") {
-        response.setHeader("Content-Type", content.type);
-        response.write(content.source);
-        response.end();
-        
-        return;
-    }
-
     throw Error(`Unsupported content type: ${content.type}`);
 }; 
 
+const setSecurityHeaders = (response) => {
+    if (DOMAIN !== "localhost") {
+        response.setHeader("Strict-Transport-Security", "max-age=63072000");
+    }
+
+    const websocketHost = (DOMAIN === "localhost") ? `ws://${DOMAIN}:${PORT}` : `wss://${DOMAIN}`;
+    const upgradeToHttps = (DOMAIN === "localhost") ?  "" : " upgrade-insecure-requests;";
+
+    response.setHeader("Content-Security-Policy", `default-src 'self'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; base-uri 'none';${upgradeToHttps} frame-ancestors 'none';`);
+    response.setHeader("X-Content-Type-Options", "nosniff");
+    response.setHeader("Referrer-Policy", "no-referrer");
+    response.setHeader("X-Frame-Options", "DENY");
+    response.setHeader("X-XSS-Protection", "0");
+    //response.setHeader("Permissions-Policy", "");
+};
+
 const server = http.createServer((request, response) => {
-    if (request.url == "/") { 
+    if (request.method !== "GET") {
+        respond(response, 405);
+        return;
+    }
+
+    if (request.url === "/" || request.url.startsWith("/_/")) {
         respond(response, 200, {type: "text/html", source: "../index.html"});
         return;
     }
 
-    if (request.url == "/dist/bundle.js") {
+    if (request.url === "/dist/bundle.js") {
         respond(response, 200, {type: "application/javascript", source: "../../dist/bundle.js"});
         return;
     }
 
-    if (request.url == "/dist/qr-scanner-worker.min.js") {
+    if (request.url === "/dist/qr-scanner-worker.min.js") {
         respond(response, 200, {type: "application/javascript", source: "../../dist/qr-scanner-worker.min.js"});
         return;
     }
 
-    if (request.url == "/dist/main.css") {
+    if (request.url === "/dist/main.css") {
         respond(response, 200, {type: "text/css", source: "../../dist/main.css"});
         return;
     }
 
-    if (request.url.startsWith("/_/")) {
-        const uuid = request.url.split("/").pop();
+    respond(response, 404);
 
-        if (!(UUID_PATTERN.test(uuid) && uuid in clients)) {
-            respond(response, 404, {type: "text/plain", source: "The receiving end is not listening on this connection."});
-        } else {
-            respond(response, 200, {type: "text/html", source: "../index.html"});
-        }
-
-        return;
-    }
-
-    respond(response, 404, {type: "text/plain", source: "The requested resource doesn't exist."});
-
-}).listen(port, "localhost", () => { // always run on localhost (production is expected to be behind a reverse proxy)
-    console.log("Server running at http://localhost:" + port + "/");
+}).listen(PORT, "localhost", () => { // always run on localhost (production is expected to be behind a reverse proxy)
+    console.log("Server running at http://localhost:" + PORT + "/");
 });
 
 server.on("upgrade", (request, socket, head) => {
@@ -138,23 +144,7 @@ server.on("upgrade", (request, socket, head) => {
 });
 
 const debug = (message) => {
-    if (!isProduction) {
+    if (!IS_PRODUCTION) {
         console.log(message);
     }
-};
-
-const setSecurityHeaders = (response) => {
-    if (domain !== "localhost") {
-        response.setHeader("Strict-Transport-Security", "max-age=63072000");
-    }
-
-    const websocketHost = (domain === "localhost") ? `ws://${domain}:${port}` : `wss://${domain}`;
-    const upgradeToHttps = (domain === "localhost") ?  "" : " upgrade-insecure-requests;";
-
-    response.setHeader("Content-Security-Policy", `default-src 'self'; connect-src ${websocketHost}; img-src data:; script-src 'self' 'unsafe-eval'; base-uri 'none';${upgradeToHttps} frame-ancestors 'none';`);
-    response.setHeader("X-Content-Type-Options", "nosniff");
-    response.setHeader("Referrer-Policy", "no-referrer");
-    response.setHeader("X-Frame-Options", "DENY");
-    response.setHeader("X-XSS-Protection", "0");
-    //response.setHeader("Permissions-Policy", "");
 };
