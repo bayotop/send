@@ -1,9 +1,12 @@
 import "../css/main.css";
+import "../index.html";
+import "../../routes.json";
+
 import * as qr from "./qr";
 import * as ws from "./ws";
 
-const nacl = require("tweetnacl");
-nacl.util = require("tweetnacl-util");
+const Nacl = require("tweetnacl");
+Nacl.util = require("tweetnacl-util");
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -38,10 +41,22 @@ const rewriteDOM = (identifier) => {
 };
 
 const getSettingsFromUrl = (url) => {
-    const uuid = url.pathname.split("/").pop();
-    const [key, nonce] = url.hash.substring(1).split(",").map(v => nacl.util.decodeBase64(v));
+    const values = url.hash.substring(1).split(",");
 
-    return {"uuid": uuid, "key": key, "nonce": nonce};
+    try {
+        if (values.length === 3 && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}(\/)?$/.test(values[0])) {
+            const uuid = values[0];
+            const key = Nacl.util.decodeBase64(values[1]);
+            const nonce = Nacl.util.decodeBase64(values[2]);
+
+            return {"uuid": uuid, "key": key, "nonce": nonce};
+        }
+    } catch (e) {
+        console.log(`failed to parse '${values}: ${e}`);
+        return null;
+    }
+
+    return null;
 };
 
 document.getElementById("btn-send").onclick = () => {
@@ -70,16 +85,16 @@ document.getElementById("btn-clipboard").onclick = () => {
 document.getElementById("btn-receive").onclick = () => {
     const settings = {
         uuid: uuidv4(),
-        key: nacl.randomBytes(nacl.secretbox.keyLength),
-        nonce: nacl.randomBytes(nacl.secretbox.nonceLength)
+        key: Nacl.randomBytes(Nacl.secretbox.keyLength),
+        nonce: Nacl.randomBytes(Nacl.secretbox.nonceLength)
     };
 
     // eslint-disable-next-line no-undef
     if (ENVIRONMENT === "development") {
-        console.log(`${location.origin}/_/${settings.uuid}#${nacl.util.encodeBase64(settings.key)},${nacl.util.encodeBase64(settings.nonce)}`);
+        console.log(`${location.origin}/#${settings.uuid},${Nacl.util.encodeBase64(settings.key)},${Nacl.util.encodeBase64(settings.nonce)}`);
     }
 
-    qr.generate(`${location.origin}/_/${settings.uuid}#${nacl.util.encodeBase64(settings.key)},${nacl.util.encodeBase64(settings.nonce)}`, (canvas) => {
+    qr.generate(`${location.origin}/#${settings.uuid},${Nacl.util.encodeBase64(settings.key)},${Nacl.util.encodeBase64(settings.nonce)}`, (canvas) => {
         document.getElementById("action-qrcode").appendChild(canvas);
         rewriteDOM("action-qrcode");
     });
@@ -87,12 +102,12 @@ document.getElementById("btn-receive").onclick = () => {
     listen(settings);
 };
 
-if (/^\/_\/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}(\/)?$/.test(location.pathname)) {
+if (location.hash) {
     settings = getSettingsFromUrl(location);
     // Settings might still be stored in history (unless incognito), unfortunately there probably isn't a way around this.
     history.replaceState(null, null, " ");
 
-    rewriteDOM("action-send");
-} else if (location.pathname !== "/") {
-    location.href = "/";
+    if (settings) {
+        rewriteDOM("action-send");
+    }
 }

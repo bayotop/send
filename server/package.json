@@ -1,0 +1,27 @@
+{
+  "name": "send-server",
+  "version": "1.0.0",
+  "description": "send - secure data sharing via websockets",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start-dev": "export DEBUG=1 && node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bayotop/send.git"
+  },
+  "author": "bayo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bayotop/send/issues"
+  },
+  "homepage": "https://github.com/bayotop/send#readme",
+  "dependencies": {
+    "ws": "^7.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.13.0"
+  }
+}
