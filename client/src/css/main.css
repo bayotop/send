@@ -1,76 +1,54 @@
 html {
-    display: flex;
-    height: 100%;
-  }
+  display: flex;
+  height: 100%;
+}
   
-  body {
-      align-items: stretch;
-      background: #fff;
-      color: #2f6b6c;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      font-family: helvetica, sans-serif;
-      justify-content: center;
-      margin: 10px;
-      padding: 0;
-      transition: background-color 0.3s;
-  }
+body {
+  display: flex;
+  flex-grow: 1;
+}
 
-  .container {
-      align-items: center;
-      display: flex;
-      flex-flow: column;
-      flex: 1 0 auto;
-      justify-content: center;
-  }
+.container {
+  display: flex;
+  align-items: center;
+  flex: 1 0 auto;
+  justify-content: center;
+}
 
-  .button {
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    border: 1px solid transparent;
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
-    padding: .5rem 1rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    border-radius: .3rem;
-    margin: 10px;
-    width: 280px;
-    cursor: pointer;
-  }
+.button {
+  text-align: center;
+  border: 1px solid transparent;
+  color: #fff;
+  background-color: #007bff;
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: .3rem;
+  margin: 10px;
+  width: 280px;
+  cursor: pointer;
+}
 
-  .textarea {
-    display: inline-block;
-    font-weight: 400;
-    text-align: center;
-    vertical-align: middle;
-    padding: .5rem 1rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    border-radius: .3rem;
-    margin: 10px;
-    width: 245px;
-    height: 100%;
-    max-width: 245px;
-  }
+.textarea {
+  text-align: center;
+  vertical-align: middle;
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: .3rem;
+  margin: 10px;
+  width: 245px;
+  height: 170px;
+  max-width: 245px;
+}
 
-  .hidden {
-    display: none!important;
-    visibility: hidden!important;
-  }
+.hidden {
+  display: none;
+  visibility: hidden;
+}
 
-  .result {
-    max-width: 245px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  
+.result {
+  max-width: 245px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
