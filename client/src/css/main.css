@@ -29,19 +29,6 @@ body {
   cursor: pointer;
 }
 
-.textarea {
-  text-align: center;
-  vertical-align: middle;
-  padding: .5rem 1rem;
-  font-size: 1.25rem;
-  line-height: 1.5;
-  border-radius: .3rem;
-  margin: 10px;
-  width: 245px;
-  height: 170px;
-  max-width: 245px;
-}
-
 .hidden {
   display: none;
   visibility: hidden;
