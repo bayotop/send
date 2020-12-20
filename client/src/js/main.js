@@ -62,15 +62,6 @@ document.getElementById("btn-send").onclick = () => {
     rewriteDOM("action-send");
 };
 
-document.getElementById("btn-send-message").onclick = () => {
-    const message = document.getElementById("area-message").value;
-    if (!(message && /\S/.test(message))) {
-        alert("You need to first enter some text to be sent.");
-    } else {
-        send(message);
-    }  
-};
-
 document.getElementById("btn-clipboard").onclick = () => {
     navigator.clipboard.readText().then(message => {
         if (!(message && /\S/.test(message))) {
