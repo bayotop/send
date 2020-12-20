@@ -20,16 +20,16 @@
   "dependencies": {
     "css-loader": "^5.0.1",
     "file-loader": "^6.2.0",
-    "mini-css-extract-plugin": "^1.3.1",
+    "mini-css-extract-plugin": "^1.3.3",
     "qr-scanner": "^1.2.0",
     "qrcode": "^1.4.4",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
-    "uuid": "^8.3.1",
+    "uuid": "^8.3.2",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.2.1"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "eslint": "^7.16.0"
   }
 }

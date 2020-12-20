@@ -19,9 +19,9 @@
   },
   "homepage": "https://github.com/bayotop/send#readme",
   "dependencies": {
-    "ws": "^7.4.0"
+    "ws": "^7.4.1"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "eslint": "^7.16.0"
   }
 }
