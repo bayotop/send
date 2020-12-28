@@ -7,9 +7,10 @@ ENVIRONMENT="production"
 if [ "$1" == "development" ]
 then 
     ENVIRONMENT="development"
+    DIST="dev"
 fi
 
-[ ! -d $SRC ] && { echo "Error: Source folder not found, run this script from the client folder root."; exit 1; }
+[ ! -d $SRC ] && { echo >&2 "Error: Source folder not found, run this script from the client folder root."; exit 1; }
 
 type uglifyjs >/dev/null 2>&1 || { echo >&2 "Error: uglify-es is needed but it's not installed."; exit 1; }
 type cleancss >/dev/null 2>&1 || { echo >&2 "Error: clean-css-cli is needed but it's not installed."; exit 1; }
@@ -20,18 +21,13 @@ echo "Starting a $ENVIRONMENT build..."
 mkdir $DIST
 
 # Process third-party libraries
-CHECKSUM=dependencies.hash
 VENDORS=$DIST/vendors.js
-> $CHECKSUM
 > $VENDORS
 
 for file in $SRC/lib/*
 do
-    hash=$(sha256sum $file | cut -f1 -d" ")
-    echo "$file:$hash" >> $CHECKSUM
-
     # The qr-scanneer-worker file needs to be available on it's own
-    if [[ $file == */qr-scanner-worker*.min.js ]]
+    if [[ $file == */qr-scanner-worker.min.js ]]
     then
         grep -v "^\s*//#" $file | tr '\n' [:space:] > $DIST/qr-scanner-worker.min.js
     else
