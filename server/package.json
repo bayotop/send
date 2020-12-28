@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "start-dev": "export DEBUG=1 && node app.js",
+    "start-dev": "eslint . && export DEBUG=1 && node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
