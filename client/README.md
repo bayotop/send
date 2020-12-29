@@ -9,8 +9,8 @@ Dependencies:
 To upgrade or add a new dependency:
 
 1. Download the minified version from a trusted source and add it to [src/lib/](src/lib/).
-2. Update and run [checksum.sh](scripts/checksum.sh).
-3. Update and run [build.sh](scripts/build.sh) if the file needs special attention (by default it's copied into the `vendors.$cachebuster.js` bundle).
+2. Run [checksum.sh](scripts/checksum.sh).
+3. Run [build.sh](scripts/build.sh) update it accordingly if the file needs special attention, by default it's copied into the `vendors.$cachebuster.js` bundle).
 4. Update this README.
 
 Development:

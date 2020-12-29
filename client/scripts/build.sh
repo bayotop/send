@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DIST=dist
 SRC=src
+LIBS=$SRC/lib
 ENVIRONMENT="production"
 
 if [ "$1" == "development" ]
@@ -20,25 +21,6 @@ echo "Starting a $ENVIRONMENT build..."
 [ -d $DIST ] && rm -r $DIST
 mkdir $DIST
 
-# Process third-party libraries
-VENDORS=$DIST/vendors.js
-> $VENDORS
-
-for file in $SRC/lib/*
-do
-    # The qr-scanneer-worker file needs to be available on it's own
-    if [[ $file == */qr-scanner-worker.min.js ]]
-    then
-        grep -v "^\s*//#" $file | tr '\n' [:space:] > $DIST/qr-scanner-worker.min.js
-    else
-        grep -v "^\s*//#" $file | tr '\n' [:space:] >> $VENDORS
-        echo "" >> $VENDORS
-    fi
-done
-
-cachebuster=$(sha256sum $VENDORS | cut -c 1-9)
-mv $VENDORS $DIST/vendors.$cachebuster.js
-
 # Process application code
 cp $SRC/{app.js,app.css,index.html} $DIST/
 
@@ -46,20 +28,41 @@ STYLES=$DIST/app.css
 SCRIPTS=$DIST/app.js
 INDEX=$DIST/index.html
 
-# Set vendors file in index.html
-sed -i '' "s/{{vendorsfile}}/vendors.$cachebuster.js/" $INDEX
+updateIndex () {
+    cachebuster=$(sha256sum "$1" | cut -c 1-9)
+    extension=$(echo "$1" | cut -f2 -d".")
+    target=${1//.$extension/."$cachebuster".$extension}
+    mv "$1" "$target"
+    sed -i '' "s/$2/$(basename "$target")/g" $INDEX
+}
 
-# Process CSS styles file
+# CSS
 cleancss -o $STYLES $STYLES
-cachebuster=$(sha256sum $STYLES | cut -c 1-9)
-mv $STYLES $DIST/app.$cachebuster.css
-sed -i '' "s/{{appstylesfile}}/app.$cachebuster.css/" $INDEX
+updateIndex "$STYLES" "___appstylesfile___"
 
-# Process application JS file
-sed -i '' "s?{{environment}}?$ENVIRONMENT?" $SCRIPTS
+# JS
+sed -i '' "s/___environment___/$ENVIRONMENT/g" $SCRIPTS
 uglifyjs -o $SCRIPTS $SCRIPTS
-cachebuster=$(sha256sum $SCRIPTS | cut -c 1-9)
-mv $SCRIPTS $DIST/app.$cachebuster.js
-sed -i '' "s/{{appscriptsfile}}/app.$cachebuster.js/" $INDEX
+updateIndex "$SCRIPTS" "___appscriptsfile___"
+
+# Third-party libraries
+VENDORS=$DIST/vendors.js
+true > $VENDORS
+
+normalise () {
+    grep -v "^\s*//#" "$1" | tr '\n' "[:space:]"
+}
+
+while IFS= read -r -d '' lib; do
+    # The qr-scanneer-worker file needs to be available on it's own
+    if [[ $lib == */qr-scanner-worker.min.js ]]
+    then
+        normalise "$lib" > $DIST/qr-scanner-worker.min.js
+    else
+        normalise "$lib" >> $VENDORS
+        echo "" >> $VENDORS
+    fi
+done< <(find $LIBS -type f -name '*.js' -print0)
+updateIndex "$VENDORS" "___vendorsfile___"
 
 echo "Done."

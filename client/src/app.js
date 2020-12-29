@@ -1,5 +1,5 @@
 // Environment specific variables are replaced in ~/scripts/build.sh
-const ENVIRONMENT = "{{environment}}";
+const ENVIRONMENT = "___environment___";
 
 const nacl = window.nacl || {};
 const QrScanner = window.QrScanner || {};
