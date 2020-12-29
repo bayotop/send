@@ -12,7 +12,7 @@ SOURCES=(
 
 [ ! -d $SRC ] && { echo "Error: Source folder not found, run this script from the client folder root."; exit 1; }
 
-while IFS= read -r -d '' lib; do
+while read -r lib; do
     actual=$(sha256sum "$lib" | cut -f1 -d" ")
     for source in "${SOURCES[@]}"
     do
@@ -25,4 +25,4 @@ while IFS= read -r -d '' lib; do
         fi
     done
     echo "$lib:$actual" >> $CHECKSUM
-done< <(find $LIBS -type f -name '*.js' -print0)
+done <<< "$(find $LIBS -type f -name '*.js' | sort)"

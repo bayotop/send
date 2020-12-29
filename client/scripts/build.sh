@@ -53,7 +53,7 @@ normalise () {
     grep -v "^\s*//#" "$1" | tr '\n' "[:space:]"
 }
 
-while IFS= read -r -d '' lib; do
+while read -r lib; do
     # The qr-scanneer-worker file needs to be available on it's own
     if [[ $lib == */qr-scanner-worker.min.js ]]
     then
@@ -62,7 +62,13 @@ while IFS= read -r -d '' lib; do
         normalise "$lib" >> $VENDORS
         echo "" >> $VENDORS
     fi
-done< <(find $LIBS -type f -name '*.js' -print0)
+done <<< "$(find $LIBS -type f -name '*.js' | sort)"
 updateIndex "$VENDORS" "___vendorsfile___"
 
-echo "Done."
+CHECKSUM=dist.hash
+true > $CHECKSUM
+
+while read -r file; do
+    hash=$(sha256sum "$file" | cut -f1 -d" ")
+    echo "$file:$hash" | tee -a $CHECKSUM
+done <<< "$(find $DIST -type f -name '*.*' | sort)"
