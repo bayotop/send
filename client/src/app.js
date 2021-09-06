@@ -134,18 +134,30 @@ const getSettingsFromUrl = (url) => {
     return null;
 };
 
+const checkAndSendText = (message) => {
+    if (!(message && /\S/.test(message))) {
+        alert("It seems there is either no or unsupported data in your clipboard.");
+    } else {
+        send(message);
+    }
+}
+
 document.getElementById("btn-send").onclick = () => {
     rewriteDOM("action-send");
 };
 
 document.getElementById("btn-clipboard").onclick = () => {
-    navigator.clipboard.readText().then(message => {
-        if (!(message && /\S/.test(message))) {
-            alert("It seems there is either no or unsupported data in your clipboard.");
-        } else {
-            send(message);
-        }
-    });
+    if (navigator.clipboard.readText) {
+        navigator.clipboard.readText().then(message => {
+           checkAndSendText(message); 
+        });
+    } else { 
+        document.getElementById("content-manual-send").classList.remove("hidden");
+    }
+};
+
+document.getElementById("area-manual-input").onpaste = (e) => {
+    checkAndSendText(e.clipboardData.getData("text"));
 };
 
 document.getElementById("btn-receive").onclick = () => {
@@ -175,4 +187,4 @@ if (location.hash) {
     if (settings) {
         rewriteDOM("action-send");
     }
-}
+};
