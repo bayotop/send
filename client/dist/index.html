@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, height=device-height">
       <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-      <link rel="stylesheet" href="app.02325bbce.css">
+      <link rel="stylesheet" href="app.ebe65d26f.css">
   </head>
   <body>
   <div class="container" id="content">
@@ -14,11 +14,19 @@
       <div><button class="button" id="btn-receive">Receive</button></div>
     </div>
     <div id="action-send" class="hidden">
-      <div>
+      <div class="container">
         <svg id="btn-clipboard" width="4em" height="4em" viewBox="0 0 1792 1792">
           <path d="M768 1664h896v-640h-416q-40 0-68-28t-28-68V512H768v1152zm256-1440v-64q0-13-9.5-22.5T992 128H288q-13 0-22.5 9.5T256 160v64q0 13 9.5 22.5T288 256h704q13 0 22.5-9.5t9.5-22.5zm256 672h299l-299-299v299zm512 128v672q0 40-28 68t-68 28H736q-40 0-68-28t-28-68v-160H96q-40 0-68-28t-28-68V96q0-40 28-68T96 0h1088q40 0 68 28t28 68v328q21 13 36 28l408 408q28 28 48 76t20 88z" fill="#007bff"/>
           <rect x="0" y="0" width="1792" height="1792" fill="rgba(0, 0, 0, 0)" />
         </svg>
+      </div>
+      <div id="content-manual-send" class="hidden">
+        <div class="container">
+          <pre>Your browser doesn't support clipboard access. Paste bellow:</pre>
+        </div>
+        <div class="container">
+          <textarea id="area-manual-input"></textarea>
+        </div>
       </div>
     </div>
     <div id="action-qrcode" class="hidden"></div> 
@@ -29,7 +37,7 @@
       <pre id="result" class="result"></pre>
     </div>
   </div>
-    <script src="vendors.19697dae7.js"></script>
-    <script src="app.f8bcb2505.js"></script>
+    <script src="vendors.e703b6266.js"></script>
+    <script src="app.d5f08b7d2.js"></script>
   </body>
 </html>

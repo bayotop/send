@@ -15,6 +15,7 @@ fi
 
 type uglifyjs >/dev/null 2>&1 || { echo >&2 "Error: uglify-es is needed but it's not installed."; exit 1; }
 type cleancss >/dev/null 2>&1 || { echo >&2 "Error: clean-css-cli is needed but it's not installed."; exit 1; }
+type sha256sum >/dev/null 2>&1 || { echo >&2 "Error: sha256sum is needed but it's not installed."; exit 1; }
 
 echo "Starting a $ENVIRONMENT build..."
 
