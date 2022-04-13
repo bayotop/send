@@ -2,7 +2,7 @@
     "routes": [],
     "defaultHeaders": {
       "strict-transport-security": "max-age=63072000",
-      "content-security-policy": "default-src 'self'; connect-src wss://ws.bayo.io; img-src data:; script-src 'self' 'unsafe-eval'; base-uri 'none'; upgrade-insecure-requests; frame-ancestors 'none';",
+      "content-security-policy": "default-src 'self'; connect-src wss://ws.bayo.io; img-src data:; base-uri 'none'; upgrade-insecure-requests; frame-ancestors 'none'; child-src blob:",
       "x-content-type-options": "nosniff",
       "X-Frame-Options": "deny",
       "x-xss-protection": "0",
