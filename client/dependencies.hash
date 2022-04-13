@@ -1,3 +1,4 @@
+src/lib/qr-scanner@1.4.1/qr-scanner-worker.min.js:f4d8445f5a15c4e5f71a8c8c062c6443f09db370b8d3fe1fbdc7fe7889630d14
 src/lib/qr-scanner@1.4.1/qr-scanner.umd.min.js:8ecb51a022e3cf05f02cdda8d03324930447b6a60240cc6b46492d007c197a45
 src/lib/qrcode@1.5.0/build/qrcode.js:a564bbed45d69eefd938a019e4a9b0e617a35950bb58863d4a154b1dff3cbb08
 src/lib/tweetnacl-util@0.15.1/nacl-util.min.js:97dc9513760f5ac4c3e3c7232360018d0a38eba480474a0b2a3d55cd03a56755
