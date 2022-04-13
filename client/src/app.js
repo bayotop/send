@@ -42,27 +42,25 @@ const qrscan = (video, callback) => {
             video.srcObject = stream;
 
             video.addEventListener("play", function() {
-                QrScanner.createQrEngine().then(engine => {
-                    let count = 0;
-                    (function _scanQR() {
-                        QrScanner.scanImage(video, null, engine).then(url => {
-                            callback(new URL(url));
-                            destroy(video);
-                        }).catch((error) => {
-                            if (error == "No QR code found") {
-                                count += 1;
-                                if (count < scansPerSecond * 10) {
-                                    setTimeout(_scanQR, 1000 / scansPerSecond);
-                                }
-                                else {
-                                    destroy(video);
-                                }
-                            } else {
-                                console.error(`Scan error: ${error}`);
+                let count = 0;
+                (function _scanQR() {
+                    QrScanner.scanImage(video, {returnDetailedScanResult: true}).then(qr => {
+                        callback(new URL(qr.data));
+                        destroy(video);
+                    }).catch((error) => {
+                        if (/No QR code found/.test(error)) {
+                            count += 1;
+                            if (count < scansPerSecond * 10) {
+                                setTimeout(_scanQR, 1000 / scansPerSecond);
                             }
-                        });
-                    })();
-                });
+                            else {
+                                destroy(video);
+                            }
+                        } else {
+                            console.error(error);
+                        }
+                    });
+                })();
             });
         });
     } else {
