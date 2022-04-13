@@ -32,12 +32,12 @@ wss.on("connection", (ws, request) => {
         break;
     case "send":
         debug(`info: received send to ${uuid}`);
-        ws.on("message", message => {
+        ws.on("message", data => {
             if (uuid in listeners) {
                 const listener = listeners[uuid];
                 if (listener.readyState === WebSocket.OPEN) {
                     debug(`info: forwarding message to ${uuid}`);
-                    listener.send(message);
+                    listener.send(data.toString());
                 }
                 listener.close();
             }
@@ -58,7 +58,7 @@ const setSecurityHeaders = (response) => {
         response.setHeader("Strict-Transport-Security", "max-age=63072000");
     }
 
-    response.setHeader("Content-Security-Policy", `default-src 'none'; frame-ancestors 'none';`);
+    response.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none';");
     response.setHeader("X-Content-Type-Options", "nosniff");
     response.setHeader("Referrer-Policy", "no-referrer");
     response.setHeader("X-Frame-Options", "DENY");
